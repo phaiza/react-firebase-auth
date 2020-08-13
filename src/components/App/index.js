@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, Component } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import Navigation from "../Navigation";
@@ -10,21 +10,45 @@ import HomePage from "../Home";
 import AccountPage from "../Account";
 import AdminPage from "../Admin";
 import * as ROUTES from "../../constants/routes";
-console.log(process.env.REACT_APP_API_KEY);
-const App = () => (
-  <Router>
-    <Fragment>
-      <Navigation />
+import { withFirebase } from "../Firebase";
 
-      <Route exact path={ROUTES.LANDING} component={LandingPage} />
-      <Route path={ROUTES.HOME} component={HomePage} />
-      <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
-      <Route path={ROUTES.SIGN_IN} component={SignInPage} />
-      <Route path={ROUTES.ADMIN} component={AdminPage} />
-      <Route path={ROUTES.ACCOUNT} component={AccountPage} />
-      <Route path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
-    </Fragment>
-  </Router>
-);
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-export default App;
+    this.state = {
+      authUser: null,
+    };
+  }
+
+  componentDidMount() {
+    this.listener = this.props.firebase.auth.onAuthStateChanged((authUser) => {
+      authUser
+        ? this.setState({ authUser })
+        : this.setState({ authUser: null });
+    });
+  }
+  componentWillUnmount() {
+    this.listener();
+  }
+
+  render() {
+    return (
+      <Router>
+        <Fragment>
+          <Navigation authUser={this.state.authUser} />
+
+          <Route exact path={ROUTES.LANDING} component={LandingPage} />
+          <Route path={ROUTES.HOME} component={HomePage} />
+          <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
+          <Route path={ROUTES.SIGN_IN} component={SignInPage} />
+          <Route path={ROUTES.ADMIN} component={AdminPage} />
+          <Route path={ROUTES.ACCOUNT} component={AccountPage} />
+          <Route path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
+        </Fragment>
+      </Router>
+    );
+  }
+}
+
+export default withFirebase(App);
