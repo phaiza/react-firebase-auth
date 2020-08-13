@@ -4,9 +4,14 @@ import { Link } from "react-router-dom";
 import { Container, Menu, MenuItem, Image } from "semantic-ui-react";
 import logo from "../../img/logo.png";
 import SignOutButton from "../SignOut";
+import { AuthUserContext } from "../Session";
 
-const Navigation = ({ authUser }) => (
-  <div>{authUser ? <NavigationAuth /> : <NavigationNonAuth />}</div>
+const Navigation = () => (
+  <div>
+    <AuthUserContext.Consumer>
+      {(authUser) => (authUser ? <NavigationAuth /> : <NavigationNonAuth />)}
+    </AuthUserContext.Consumer>
+  </div>
 );
 
 const NavigationAuth = () => (
